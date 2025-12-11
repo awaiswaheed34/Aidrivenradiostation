@@ -40,11 +40,10 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
               onClick={() => onNavigate(id)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-sm font-medium ${
-                currentPage === id
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-sm font-medium ${currentPage === id
                   ? 'text-[#D4AF37] bg-[#D4AF37]/10'
                   : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
+                }`}
             >
               <Icon size={18} />
               <span>{label}</span>
@@ -68,11 +67,10 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
             key={id}
             onClick={() => onNavigate(id)}
             whileTap={{ scale: 0.9 }}
-            className={`flex flex-col items-center gap-1 py-1 px-2 rounded transition-colors ${
-              currentPage === id 
-                ? 'text-[#D4AF37]' 
+            className={`flex flex-col items-center gap-1 py-1 px-2 rounded transition-colors ${currentPage === id
+                ? 'text-[#D4AF37]'
                 : 'text-white/50 hover:text-white'
-            }`}
+              }`}
           >
             <Icon size={20} />
             <span className="text-xs font-medium">{label}</span>
