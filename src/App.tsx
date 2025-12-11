@@ -35,9 +35,11 @@ export default function App() {
 
   return (
     <MusicProvider songs={songs}>
-      <div className="min-h-screen bg-black text-white pb-24">
+      <div className="min-h-screen bg-black text-white">
         <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
-        {renderPage()}
+        <main className="pt-20 md:pt-24 pb-24">
+          {renderPage()}
+        </main>
         <MusicPlayer />
       </div>
     </MusicProvider>

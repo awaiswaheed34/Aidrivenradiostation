@@ -15,9 +15,9 @@ export function HomePage() {
   const particles = Array.from({ length: 30 }, (_, i) => i);
 
   return (
-    <div className="min-h-screen pt-20 md:pt-24">
+    <div className="min-h-screen bg-black text-white pb-24">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden min-h-screen flex items-center">
         {/* Animated Background */}
         <div className="absolute inset-0 opacity-30">
           <ImageWithFallback
@@ -56,7 +56,7 @@ export function HomePage() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative max-w-7xl mx-auto px-6 py-20 md:py-32">
+        <div className="relative w-full max-w-7xl mx-auto px-6 py-20">
           <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -73,15 +73,13 @@ export function HomePage() {
               }}
               className="inline-block mb-6"
             >
-              <span className="px-4 py-2 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-full text-[#D4AF37] text-sm">
+              <span className="px-4 py-2 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-full text-[#D4AF37] text-sm font-medium">
                 AI-Powered Radio Experience
               </span>
             </motion.div>
 
             <h1 className="mb-6 text-transparent bg-clip-text bg-gradient-to-r from-white via-[#D4AF37] to-white">
-              The Future of Radio
-              <br />
-              is Here
+              The Future of Radio<br />is Here
             </h1>
 
             <p className="mb-12 text-white/70 max-w-2xl mx-auto text-lg">
@@ -94,7 +92,7 @@ export function HomePage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsPlaying(!isPlaying)}
-              className="group relative px-12 py-4 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] rounded-full text-black overflow-hidden"
+              className="group relative px-12 py-4 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] rounded-full text-black font-semibold overflow-hidden"
             >
               <motion.div
                 animate={{
@@ -218,13 +216,13 @@ export function HomePage() {
       </section>
 
       {/* AI Host Message Section */}
-      <section className="py-20 px-6">
+      <section className="py-16 md:py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="p-8 bg-gradient-to-r from-[#D4AF37]/10 to-transparent border-l-4 border-[#D4AF37] rounded-r-2xl"
+            className="p-6 md:p-8 bg-gradient-to-r from-[#D4AF37]/10 to-transparent border-l-4 border-[#D4AF37] rounded-r-2xl"
           >
             <div className="flex items-start gap-4">
               <motion.div
@@ -236,15 +234,14 @@ export function HomePage() {
                   duration: 2,
                   repeat: Infinity,
                 }}
-                className="w-12 h-12 bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] rounded-full flex items-center justify-center"
+                className="w-12 h-12 flex-shrink-0 bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] rounded-full flex items-center justify-center"
               >
-                <span className="text-black">AI</span>
+                <span className="text-black font-semibold text-sm">AI</span>
               </motion.div>
               <div>
                 <h4 className="mb-2 text-[#D4AF37]">AI Host Says</h4>
-                <p className="text-white/80">
-                  "Welcome to wayyFM! I've curated a perfect blend of synthwave and electronic beats
-                  for your evening. The energy is about to shift – get ready for something special."
+                <p className="text-white/70 text-sm md:text-base">
+                  "Welcome to wayyFM! I've curated a perfect blend of synthwave and electronic beats for your evening. The energy is about to shift – get ready for something special."
                 </p>
               </div>
             </div>
@@ -253,13 +250,13 @@ export function HomePage() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 px-6">
+      <section className="py-16 md:py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-12 md:mb-16"
           >
             Powered by Intelligence
           </motion.h2>
@@ -289,7 +286,7 @@ export function HomePage() {
                 className="p-6 bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-xl hover:border-[#D4AF37]/50 transition-all"
               >
                 <h4 className="mb-3 text-[#D4AF37]">{feature.title}</h4>
-                <p className="text-white/60">{feature.description}</p>
+                <p className="text-white/60 text-sm">{feature.description}</p>
               </motion.div>
             ))}
           </div>

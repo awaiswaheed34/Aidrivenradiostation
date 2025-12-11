@@ -188,9 +188,8 @@ export function SchedulePage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
                 whileHover={{ x: 8 }}
-                className={`relative p-6 bg-[#1A1A1A] border-l-4 ${segment.border} rounded-r-2xl hover:bg-[#1A1A1A]/80 transition-all cursor-pointer ${
-                  index === currentSegment ? 'ring-2 ring-[#D4AF37]/50' : ''
-                }`}
+                className={`relative p-6 bg-[#1A1A1A] border-l-4 ${segment.border} rounded-r-2xl hover:bg-[#1A1A1A]/80 transition-all cursor-pointer ${index === currentSegment ? 'ring-2 ring-[#D4AF37]/50' : ''
+                  }`}
               >
                 <div className={`absolute inset-0 bg-gradient-to-r ${segment.color} rounded-r-2xl`} />
 

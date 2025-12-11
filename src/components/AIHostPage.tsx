@@ -1,79 +1,57 @@
-import { motion } from 'motion/react';
-import { Cpu, MessageSquare, Zap, Brain, Radio, Play, Shuffle, Volume2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
+import { Cpu, Brain, Radio, MessageSquare, Zap, Play, Shuffle, Volume2 } from 'lucide-react';
 import { useMusic } from '../contexts/MusicContext';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+
+type TabId = 'personality' | 'technology' | 'aimode' | 'messages' | 'interactions';
+
+const tabs: { id: TabId; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
+  { id: 'personality', label: 'Voice Personality', icon: Cpu },
+  { id: 'technology', label: 'Behind the AI', icon: Brain },
+  { id: 'aimode', label: 'AI Mode', icon: Radio },
+  { id: 'messages', label: 'Messages', icon: MessageSquare },
+  { id: 'interactions', label: 'Interactions', icon: Zap },
+];
+
+const aiLogLines = [
+  'Scanning your musical DNA…',
+  'Reading the room energy…',
+  'Blending analog warmth with neon synths…',
+  'Cueing deep cuts for midnight rides…',
+  'Dialing BPM to match your pulse…',
+];
 
 export function AIHostPage() {
-  const [selectedTab, setSelectedTab] = useState('personality');
+  const [selectedTab, setSelectedTab] = useState<TabId>('personality');
   const [isAIMode, setIsAIMode] = useState(false);
   const [aiMessages, setAiMessages] = useState<string[]>([]);
+  const { currentSong, playRandomSong, songs } = useMusic();
+  const particles = Array.from({ length: 24 }, (_, i) => i);
 
-  const { playRandomSong, currentSong, isPlaying, songs } = useMusic();
-
-  const tabs = [
-    { id: 'personality', label: 'Voice Personality', icon: Cpu },
-    { id: 'technology', label: 'Behind the AI', icon: Brain },
-    { id: 'aimode', label: 'AI Mode', icon: Radio },
-    { id: 'messages', label: 'Messages', icon: MessageSquare },
-    { id: 'interactions', label: 'Interactions', icon: Zap },
-  ];
-
-  const recentMessages = [
-    {
-      time: '2 minutes ago',
-      message: "Here's a deep cut from 1985 that matches your energy perfectly",
-    },
-    {
-      time: '15 minutes ago',
-      message: 'Shifting tempo to match the evening atmosphere',
-    },
-    {
-      time: '1 hour ago',
-      message: 'Welcome to the golden hour mix - let the sunset vibes flow',
-    },
-    {
-      time: '2 hours ago',
-      message: 'Detected high energy preference - cranking up the BPM',
-    },
-  ];
-
-  const aiPersonalityMessages = [
-    "Scanning your musical DNA...",
-    "Analyzing mood patterns from the cosmos...",
-    "Discovering hidden gems in the archive...",
-    "Calculating the perfect harmonic sequence...",
-    "Reading the energy in the airwaves...",
-    "Synthesizing the ultimate playlist algorithm..."
-  ];
-
-  // AI Mode functionality
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    if (!isAIMode) return;
 
-    if (isAIMode) {
-      // Play a random song every 30 seconds to 2 minutes
-      interval = setInterval(() => {
-        playRandomSong();
-        const randomMessage = aiPersonalityMessages[Math.floor(Math.random() * aiPersonalityMessages.length)];
-        setAiMessages(prev => [`${new Date().toLocaleTimeString()}: ${randomMessage}`, ...prev.slice(0, 9)]);
-      }, Math.random() * 90000 + 30000); // 30s to 2min
-    }
+    const interval = setInterval(() => {
+      playRandomSong();
+      const line = aiLogLines[Math.floor(Math.random() * aiLogLines.length)];
+      const stamped = `${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}: ${line}`;
+      setAiMessages((prev) => [stamped, ...prev.slice(0, 9)]);
+    }, Math.random() * 60000 + 30000);
 
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
+    return () => clearInterval(interval);
   }, [isAIMode, playRandomSong]);
 
-  const handleAIModeToggle = () => {
-    setIsAIMode(!isAIMode);
-    if (!isAIMode) {
-      playRandomSong();
-      setAiMessages(["AI Mode activated - Let the algorithm take control!"]);
-    } else {
+  const toggleAIMode = () => {
+    if (isAIMode) {
+      setIsAIMode(false);
       setAiMessages([]);
+      return;
     }
+
+    setIsAIMode(true);
+    playRandomSong();
+    setAiMessages([`AI mode engaged at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`]);
   };
 
   const renderTabContent = () => {
@@ -81,65 +59,56 @@ export function AIHostPage() {
       case 'aimode':
         return (
           <div className="space-y-8">
-            {/* AI Mode Control */}
-            <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-xl p-8 border border-purple-500/30">
-              <div className="flex items-center justify-between mb-6">
+            <div className="p-8 bg-gradient-to-br from-[#1A1A1A] to-[#050005] border border-[#D4AF37]/30 rounded-2xl">
+              <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <h3 className="text-2xl font-bold text-white mb-2">AI DJ Mode</h3>
-                  <p className="text-gray-400">Let the AI curate your perfect musical journey</p>
+                  <h3 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F4D03F]">AI DJ Mode</h3>
+                  <p className="text-white/60">Let ARIA automate the mix, read the room, and narrate the flow.</p>
                 </div>
-                <button
-                  onClick={handleAIModeToggle}
-                  className={`px-8 py-4 rounded-xl font-semibold text-lg transition-all ${isAIMode
-                    ? 'bg-red-600 hover:bg-red-700 text-white'
-                    : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white'
-                    }`}
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={toggleAIMode}
+                  className={`px-8 py-3 rounded-full font-medium transition-colors ${isAIMode ? 'bg-red-600 hover:bg-red-500 text-white' : 'bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black'}`}
                 >
-                  {isAIMode ? 'Stop AI Mode' : 'Start AI Mode'}
-                </button>
+                  {isAIMode ? 'Stop AI Mode' : 'Activate AI Mode'}
+                </motion.button>
               </div>
 
               {isAIMode && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-black/40 rounded-lg p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Play size={16} className="text-green-500" />
-                      <span className="text-sm font-medium text-white">Now Playing</span>
+                <div className="grid gap-6 mt-8 md:grid-cols-3">
+                  <div className="p-4 bg-black/40 border border-[#D4AF37]/20 rounded-xl">
+                    <div className="flex items-center gap-2 text-sm text-white/60">
+                      <Play size={16} className="text-[#D4AF37]" />
+                      Now Playing
                     </div>
-                    <p className="text-gray-300">{currentSong?.title || 'Preparing next song...'}</p>
-                    <p className="text-gray-500 text-sm">{currentSong?.artist}</p>
+                    <p className="mt-2 text-white font-semibold">{currentSong?.title ?? 'Selecting song…'}</p>
+                    <p className="text-white/50 text-sm">{currentSong?.artist}</p>
                   </div>
-
-                  <div className="bg-black/40 rounded-lg p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Shuffle size={16} className="text-purple-500" />
-                      <span className="text-sm font-medium text-white">Mode</span>
+                  <div className="p-4 bg-black/40 border border-[#D4AF37]/20 rounded-xl">
+                    <div className="flex items-center gap-2 text-sm text-white/60">
+                      <Shuffle size={16} className="text-[#F4D03F]" />Mode
                     </div>
-                    <p className="text-gray-300">Intelligent Shuffle</p>
-                    <p className="text-gray-500 text-sm">Adapting to your taste</p>
+                    <p className="mt-2 text-white font-semibold">Intelligent Shuffle</p>
+                    <p className="text-white/50 text-sm">Harmonic mixing engaged</p>
                   </div>
-
-                  <div className="bg-black/40 rounded-lg p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Volume2 size={16} className="text-blue-500" />
-                      <span className="text-sm font-medium text-white">Library</span>
+                  <div className="p-4 bg-black/40 border border-[#D4AF37]/20 rounded-xl">
+                    <div className="flex items-center gap-2 text-sm text-white/60">
+                      <Volume2 size={16} className="text-[#D4AF37]" />Library
                     </div>
-                    <p className="text-gray-300">{songs.length} tracks</p>
-                    <p className="text-gray-500 text-sm">Analyzing preferences</p>
+                    <p className="mt-2 text-white font-semibold">{songs.length} tracks</p>
+                    <p className="text-white/50 text-sm">Signal quality optimal</p>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* AI Messages */}
             {aiMessages.length > 0 && (
-              <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
-                <h4 className="text-lg font-semibold text-white mb-4">AI Activity Log</h4>
+              <div className="p-6 bg-black/40 border border-[#D4AF37]/20 rounded-2xl">
+                <h4 className="text-[#D4AF37] font-semibold mb-4">AI Activity Log</h4>
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {aiMessages.map((message, index) => (
-                    <div key={index} className="text-sm text-gray-300 bg-black/30 rounded p-2">
-                      {message}
-                    </div>
+                    <div key={index} className="px-4 py-2 bg-black/30 rounded-lg text-white/70 text-sm">{message}</div>
                   ))}
                 </div>
               </div>
@@ -149,58 +118,29 @@ export function AIHostPage() {
 
       case 'personality':
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="p-8 bg-gradient-to-br from-[#1A1A1A] to-[#050005] border border-[#D4AF37]/30 rounded-2xl grid gap-8 md:grid-cols-2">
             <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-white mb-6">
-                Meet Your AI DJ
-              </h3>
-              <div className="space-y-4">
-                <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-                  <h4 className="text-white font-semibold mb-2">Voice Characteristics</h4>
-                  <ul className="text-gray-400 space-y-1">
-                    <li>• Warm and engaging tone</li>
-                    <li>• Deep knowledge of music history</li>
-                    <li>• Adapts to listener preferences</li>
-                    <li>• Natural conversation flow</li>
-                  </ul>
-                </div>
-
-                <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-                  <h4 className="text-white font-semibold mb-2">Music Expertise</h4>
-                  <ul className="text-gray-400 space-y-1">
-                    <li>• Curates based on mood and time</li>
-                    <li>• Discovers hidden musical connections</li>
-                    <li>• Provides artist background and trivia</li>
-                    <li>• Creates seamless listening experiences</li>
-                  </ul>
-                </div>
+              <div className="p-6 bg-black/40 border border-[#D4AF37]/10 rounded-xl">
+                <h4 className="text-white font-semibold mb-4">Signature Traits</h4>
+                <ul className="space-y-2 text-white/70 text-sm">
+                  <li>• Golden-era DJ warmth with AI precision.</li>
+                  <li>• Predictive mood tracking for seamless transitions.</li>
+                  <li>• Story-driven artist introductions and anecdotes.</li>
+                  <li>• Listener memory for dedications and callbacks.</li>
+                </ul>
+              </div>
+              <div className="p-6 bg-black/40 border border-[#D4AF37]/10 rounded-xl">
+                <h4 className="text-white font-semibold mb-3">Current Mood</h4>
+                <p className="text-white/70">{isAIMode ? 'Autonomous night-drive mix engaged.' : 'Ready whenever you are.'}</p>
               </div>
             </div>
-
-            <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-white mb-6">
-                Personality Traits
-              </h3>
-              <div className="space-y-3">
-                {[
-                  { trait: 'Knowledgeable', level: 95 },
-                  { trait: 'Adaptive', level: 88 },
-                  { trait: 'Creative', level: 92 },
-                  { trait: 'Intuitive', level: 85 },
-                ].map((item) => (
-                  <div key={item.trait} className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-white font-medium">{item.trait}</span>
-                      <span className="text-purple-400">{item.level}%</span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
-                        style={{ width: `${item.level}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
+            <div className="p-6 bg-gradient-to-br from-[#D4AF37]/15 to-[#F4D03F]/15 border border-[#D4AF37]/30 rounded-xl text-center">
+              <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] flex items-center justify-center">
+                <Brain className="text-black" size={36} />
+              </div>
+              <p className="text-white/70 text-sm mb-3">Learning progress</p>
+              <div className="w-full h-2 bg-black/30 rounded-full">
+                <div className="h-full bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] rounded-full" style={{ width: '86%' }} />
               </div>
             </div>
           </div>
@@ -208,81 +148,71 @@ export function AIHostPage() {
 
       case 'technology':
         return (
-          <div className="space-y-8">
-            <h3 className="text-2xl font-bold text-white mb-6">AI Technology Stack</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                {
-                  title: 'Neural Music Analysis',
-                  description: 'Deep learning algorithms analyze musical patterns, genres, and emotional content',
-                  icon: Brain,
-                },
-                {
-                  title: 'Real-time Adaptation',
-                  description: 'Continuously learns from listener behavior and preferences',
-                  icon: Zap,
-                },
-                {
-                  title: 'Natural Language Processing',
-                  description: 'Understands and responds to user requests in natural conversation',
-                  icon: MessageSquare,
-                },
-                {
-                  title: 'Contextual Awareness',
-                  description: 'Considers time, mood, weather, and listening environment',
-                  icon: Cpu,
-                },
-              ].map((tech, index) => (
-                <div key={index} className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg shrink-0 flex items-center justify-center">
-                      <tech.icon size={24} className="text-white" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-semibold mb-2">{tech.title}</h4>
-                      <p className="text-gray-400">{tech.description}</p>
-                    </div>
+          <div className="p-8 bg-gradient-to-br from-[#1A1A1A] to-[#050005] border border-[#D4AF37]/30 rounded-2xl grid gap-8 md:grid-cols-2">
+            <div className="space-y-6">
+              <div className="p-6 bg-black/40 border border-[#D4AF37]/10 rounded-xl">
+                <h4 className="text-white font-semibold mb-3">Neural Pipelines</h4>
+                <p className="text-white/70">Multi-layer transformers interpret mood, tempo, and harmonic data in real time.</p>
+              </div>
+              <div className="p-6 bg-black/40 border border-[#D4AF37]/10 rounded-xl">
+                <h4 className="text-white font-semibold mb-3">Latency</h4>
+                <p className="text-white/70">Edge inference keeps response latency below 120ms even during live remixing.</p>
+              </div>
+            </div>
+            <div className="space-y-6">
+              <div className="p-6 bg-black/40 border border-[#D4AF37]/10 rounded-xl">
+                <h4 className="text-white font-semibold mb-3">Conversation Stack</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="p-4 bg-[#D4AF37]/10 rounded-lg text-center">
+                    <p className="text-[#D4AF37] font-semibold">1.3s</p>
+                    <p className="text-white/60">Avg response</p>
+                  </div>
+                  <div className="p-4 bg-[#D4AF37]/10 rounded-lg text-center">
+                    <p className="text-[#D4AF37] font-semibold">99.2%</p>
+                    <p className="text-white/60">Intent accuracy</p>
                   </div>
                 </div>
-              ))}
+              </div>
+              <div className="p-6 bg-black/40 border border-[#D4AF37]/10 rounded-xl">
+                <h4 className="text-white font-semibold mb-3">System Status</h4>
+                <ul className="space-y-2 text-white/70 text-sm">
+                  <li className="flex justify-between"><span>Audio Engine</span><span className="text-[#28C76F]">Online</span></li>
+                  <li className="flex justify-between"><span>ML Models</span><span className="text-[#28C76F]">Active</span></li>
+                  <li className="flex justify-between"><span>Voice Interface</span><span className="text-[#28C76F]">Ready</span></li>
+                  <li className="flex justify-between"><span>Data Sync</span><span className="text-[#28C76F]">Synced</span></li>
+                </ul>
+              </div>
             </div>
           </div>
         );
 
       case 'messages':
         return (
-          <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-white mb-6">Recent AI Messages</h3>
-            <div className="space-y-4">
-              {recentMessages.map((msg, index) => (
-                <div key={index} className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-purple-400 text-sm font-medium">{msg.time}</span>
+          <div className="p-8 bg-gradient-to-br from-[#1A1A1A] to-[#050005] border border-[#D4AF37]/30 rounded-2xl space-y-4">
+            {['Tuning tonight\'s skyline mix to match city lights.', 'Dialing bpm to sunset energy levels.', 'Queueing dedications for the after-hours crowd.', 'Blending analog warmth with futuristic synth textures.'].map((message, index) => (
+              <motion.div key={message} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }} className="p-4 bg-black/40 border border-[#D4AF37]/10 rounded-xl">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] flex items-center justify-center">
+                    <MessageSquare className="text-black" size={18} />
                   </div>
-                  <p className="text-white">{msg.message}</p>
+                  <span className="text-white/50 text-sm">{new Date(Date.now() - index * 600000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
-              ))}
-            </div>
+                <p className="text-white/80">{message}</p>
+              </motion.div>
+            ))}
           </div>
         );
 
       case 'interactions':
         return (
-          <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-white mb-6">Interaction Statistics</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { label: 'Songs Played', value: '2,847', change: '+12%' },
-                { label: 'User Interactions', value: '486', change: '+8%' },
-                { label: 'Accuracy Rate', value: '94.2%', change: '+2.1%' },
-              ].map((stat, index) => (
-                <div key={index} className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
-                  <h4 className="text-gray-400 text-sm mb-2">{stat.label}</h4>
-                  <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-                  <div className="text-green-400 text-sm">{stat.change} this week</div>
-                </div>
-              ))}
-            </div>
+          <div className="p-8 bg-gradient-to-br from-[#1A1A1A] to-[#050005] border border-[#D4AF37]/30 rounded-2xl grid gap-6 md:grid-cols-2">
+            {[{ title: 'Request a Track', desc: 'Specify title, era, or mood and ARIA responds instantly.' }, { title: 'Mood Shift', desc: 'Describe the vibe—ARIA mirrors it in the mix.' }, { title: 'Trivia Mode', desc: 'Ask about samples, artists, or release lore mid-stream.' }, { title: 'Voice Commands', desc: 'Hands-free control over tempo, skips, and shoutouts.' }].map((feature, index) => (
+              <motion.div key={feature.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="p-6 bg-black/40 border border-[#D4AF37]/10 rounded-xl flex flex-col gap-4">
+                <h4 className="text-white font-semibold">{feature.title}</h4>
+                <p className="text-white/60 text-sm">{feature.desc}</p>
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="self-start px-4 py-2 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black text-sm font-medium">Try it</motion.button>
+              </motion.div>
+            ))}
           </div>
         );
 
@@ -290,355 +220,40 @@ export function AIHostPage() {
         return null;
     }
   };
-  //     <div className="min-h-screen pt-24 md:pt-32 pb-20 px-6">
-  //       <div className="max-w-7xl mx-auto">
-  //         {/* AI Host Visual Identity */}
-  //         <motion.div
-  //           initial={{ opacity: 0, y: 20 }}
-  //           animate={{ opacity: 1, y: 0 }}
-  //           className="mb-16 text-center"
-  //         >
-  //           <motion.div
-  //             animate={{
-  //               scale: [1, 1.05, 1],
-  //               rotate: [0, 180, 360],
-  //             }}
-  //             transition={{
-  //               duration: 4,
-  //               repeat: Infinity,
-  //               ease: 'linear',
-  //             }}
-  //             className="w-48 h-48 mx-auto mb-8 relative"
-  //           >
-  //             {/* Outer Ring */}
-  //             <motion.div
-  //               animate={{
-  //                 rotate: [0, -360],
-  //               }}
-  //               transition={{
-  //                 duration: 8,
-  //                 repeat: Infinity,
-  //                 ease: 'linear',
-  //               }}
-  //               className="absolute inset-0 border-4 border-[#D4AF37]/30 rounded-full"
-  //               style={{
-  //                 borderTopColor: '#D4AF37',
-  //                 borderRightColor: '#D4AF37',
-  //               }}
-  //             />
 
-  //             {/* Middle Ring */}
-  //             <motion.div
-  //               animate={{
-  //                 rotate: [0, 360],
-  //               }}
-  //               transition={{
-  //                 duration: 6,
-  //                 repeat: Infinity,
-  //                 ease: 'linear',
-  //               }}
-  //               className="absolute inset-4 border-4 border-[#F4D03F]/20 rounded-full"
-  //               style={{
-  //                 borderBottomColor: '#F4D03F',
-  //                 borderLeftColor: '#F4D03F',
-  //               }}
-  //             />
+  return (
+    <div className="min-h-screen pt-24 md:pt-32 pb-20 px-6">
+      <section className="relative overflow-hidden min-h-[600px] flex items-center">
+        <div className="absolute inset-0 opacity-30">
+          <ImageWithFallback src="https://images.unsplash.com/photo-1717501219263-9aa2d6a768d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxuZXVyYWwlMjBuZXR3b3JrJTIwYWl8ZW58MXx8fHwxNzY1NDEzODcwfDA&ixlib=rb-4.1.0&q=80&w=1080" alt="Neural gradient" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-black/60 to-black" />
+        </div>
+        <div className="absolute inset-0 overflow-hidden">
+          {particles.map((i) => (
+            <motion.div key={i} initial={{ x: Math.random() * 1200, y: Math.random() * 1000, opacity: 0 }} animate={{ y: [null, Math.random() * -120 - 60], opacity: [0, 0.8, 0] }} transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, delay: Math.random() * 2 }} className="absolute w-1 h-1 bg-[#D4AF37] rounded-full" style={{ boxShadow: '0 0 10px #D4AF37' }} />
+          ))}
+        </div>
 
-  //             {/* Inner Circle with Glow */}
-  //             <motion.div
-  //               animate={{
-  //                 boxShadow: [
-  //                   '0 0 20px rgba(212, 175, 55, 0.3)',
-  //                   '0 0 40px rgba(212, 175, 55, 0.6)',
-  //                   '0 0 20px rgba(212, 175, 55, 0.3)',
-  //                 ],
-  //               }}
-  //               transition={{
-  //                 duration: 2,
-  //                 repeat: Infinity,
-  //               }}
-  //               className="absolute inset-8 bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] rounded-full flex items-center justify-center"
-  //             >
-  //               <Radio size={48} className="text-black" />
-  //             </motion.div>
+        <div className="relative max-w-7xl mx-auto px-6 py-20 md:py-32">
+          <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8 }} className="text-center mb-12">
+            <h1 className="mb-6 text-transparent bg-clip-text bg-gradient-to-r from-white via-[#D4AF37] to-white">Meet ARIA</h1>
+            <p className="text-white/70 max-w-3xl mx-auto">Your AI radio host learns every nuance, narrates the journey, and keeps the airwaves alive around the clock.</p>
+          </motion.div>
 
-  //             {/* Orbiting Particles */}
-  //             {[...Array(3)].map((_, i) => (
-  //               <motion.div
-  //                 key={i}
-  //                 animate={{
-  //                   rotate: [0, 360],
-  //                 }}
-  //                 transition={{
-  //                   duration: 3 + i,
-  //                   repeat: Infinity,
-  //                   ease: 'linear',
-  //                 }}
-  //                 className="absolute inset-0"
-  //               >
-  //                 <div
-  //                   className="absolute w-2 h-2 bg-[#D4AF37] rounded-full"
-  //                   style={{
-  //                     top: '50%',
-  //                     left: '100%',
-  //                     transform: 'translate(-50%, -50%)',
-  //                     boxShadow: '0 0 10px #D4AF37',
-  //                   }}
-  //                 />
-  //               </motion.div>
-  //             ))}
-  //           </motion.div>
+          <div className="flex flex-wrap justify-center gap-4 mb-10">
+            {tabs.map((tab) => (
+              <motion.button key={tab.id} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setSelectedTab(tab.id)} className={`flex items-center gap-2 px-5 py-2.5 rounded-full border transition-all ${selectedTab === tab.id ? 'bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black border-transparent' : 'border-[#D4AF37]/20 text-white/70 hover:text-white'}`}>
+                <tab.icon size={18} />
+                <span className="text-sm font-medium">{tab.label}</span>
+              </motion.button>
+            ))}
+          </div>
 
-  //           <motion.h1
-  //             initial={{ opacity: 0, y: 10 }}
-  //             animate={{ opacity: 1, y: 0 }}
-  //             transition={{ delay: 0.2 }}
-  //             className="mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white to-[#D4AF37]"
-  //           >
-  //             Meet ARIA
-  //           </motion.h1>
-  //           <motion.p
-  //             initial={{ opacity: 0 }}
-  //             animate={{ opacity: 1 }}
-  //             transition={{ delay: 0.3 }}
-  //             className="text-white/60 text-lg"
-  //           >
-  //             Artificial Radio Intelligence Assistant
-  //           </motion.p>
-  //         </motion.div>
-
-  //         {/* Tabs */}
-  //         <div className="flex flex-wrap gap-4 mb-8 justify-center">
-  //           {tabs.map(({ id, label, icon: Icon }) => (
-  //             <motion.button
-  //               key={id}
-  //               onClick={() => setSelectedTab(id)}
-  //               whileHover={{ scale: 1.02 }}
-  //               whileTap={{ scale: 0.98 }}
-  //               className={`px-6 py-3 rounded-full flex items-center gap-2 transition-all ${
-  //                 selectedTab === id
-  //                   ? 'bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black'
-  //                   : 'bg-[#1A1A1A] border border-[#D4AF37]/20 text-white hover:border-[#D4AF37]/50'
-  //               }`}
-  //             >
-  //               <Icon size={18} />
-  //               <span>{label}</span>
-  //             </motion.button>
-  //           ))}
-  //         </div>
-
-  //         {/* Tab Content */}
-  //         <motion.div
-  //           key={selectedTab}
-  //           initial={{ opacity: 0, y: 20 }}
-  //           animate={{ opacity: 1, y: 0 }}
-  //           transition={{ duration: 0.3 }}
-  //         >
-  //           {selectedTab === 'personality' && (
-  //             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-  //               <div className="p-8 bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-2xl">
-  //                 <h3 className="mb-4 text-[#D4AF37]">Voice Characteristics</h3>
-  //                 <div className="space-y-4">
-  //                   {[
-  //                     { label: 'Warmth', value: 85 },
-  //                     { label: 'Energy', value: 72 },
-  //                     { label: 'Intelligence', value: 95 },
-  //                     { label: 'Friendliness', value: 88 },
-  //                   ].map((trait) => (
-  //                     <div key={trait.label}>
-  //                       <div className="flex justify-between mb-2">
-  //                         <span className="text-white/70">{trait.label}</span>
-  //                         <span className="text-[#D4AF37]">{trait.value}%</span>
-  //                       </div>
-  //                       <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-  //                         <motion.div
-  //                           initial={{ width: 0 }}
-  //                           animate={{ width: `${trait.value}%` }}
-  //                           transition={{ duration: 1, delay: 0.2 }}
-  //                           className="h-full bg-gradient-to-r from-[#D4AF37] to-[#F4D03F]"
-  //                         />
-  //                       </div>
-  //                     </div>
-  //                   ))}
-  //                 </div>
-  //               </div>
-
-  //               <div className="p-8 bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-2xl">
-  //                 <h3 className="mb-4 text-[#D4AF37]">Personality Traits</h3>
-  //                 <ul className="space-y-3">
-  //                   <li className="flex items-start gap-3">
-  //                     <div className="w-2 h-2 mt-2 bg-[#D4AF37] rounded-full" />
-  //                     <p className="text-white/70">
-  //                       Adapts speaking style based on time of day and music genre
-  //                     </p>
-  //                   </li>
-  //                   <li className="flex items-start gap-3">
-  //                     <div className="w-2 h-2 mt-2 bg-[#D4AF37] rounded-full" />
-  //                     <p className="text-white/70">
-  //                       Shares interesting artist facts and music history
-  //                     </p>
-  //                   </li>
-  //                   <li className="flex items-start gap-3">
-  //                     <div className="w-2 h-2 mt-2 bg-[#D4AF37] rounded-full" />
-  //                     <p className="text-white/70">
-  //                       Responds to listener mood and energy levels in real-time
-  //                     </p>
-  //                   </li>
-  //                   <li className="flex items-start gap-3">
-  //                     <div className="w-2 h-2 mt-2 bg-[#D4AF37] rounded-full" />
-  //                     <p className="text-white/70">
-  //                       Creates smooth transitions between tracks with context
-  //                     </p>
-  //                   </li>
-  //                 </ul>
-  //               </div>
-  //             </div>
-  //           )}
-
-  //           {selectedTab === 'technology' && (
-  //             <div className="space-y-6">
-  //               <div className="p-8 bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] border border-[#D4AF37]/20 rounded-2xl">
-  //                 <h3 className="mb-6 text-[#D4AF37]">AI Technology Stack</h3>
-  //                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-  //                   {[
-  //                     {
-  //                       title: 'Neural Networks',
-  //                       desc: 'Deep learning models trained on millions of songs',
-  //                     },
-  //                     {
-  //                       title: 'NLP Engine',
-  //                       desc: 'Natural language processing for host commentary',
-  //                     },
-  //                     {
-  //                       title: 'Real-Time Analysis',
-  //                       desc: 'Continuous learning from listener behavior',
-  //                     },
-  //                   ].map((tech) => (
-  //                     <motion.div
-  //                       key={tech.title}
-  //                       whileHover={{ scale: 1.02 }}
-  //                       className="p-6 bg-black/50 border border-[#D4AF37]/10 rounded-xl"
-  //                     >
-  //                       <h4 className="mb-2">{tech.title}</h4>
-  //                       <p className="text-white/60 text-sm">{tech.desc}</p>
-  //                     </motion.div>
-  //                   ))}
-  //                 </div>
-  //               </div>
-
-  //               <div className="p-8 bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-2xl">
-  //                 <h3 className="mb-4 text-[#D4AF37]">How ARIA Works</h3>
-  //                 <div className="space-y-4">
-  //                   {[
-  //                     'Analyzes audio features: tempo, key, energy, mood, and genre',
-  //                     'Tracks listener interactions: skips, likes, and listening duration',
-  //                     'Considers contextual data: time, weather, and trending patterns',
-  //                     'Generates transitions and commentary using advanced language models',
-  //                     'Continuously learns and adapts to individual preferences',
-  //                   ].map((step, i) => (
-  //                     <motion.div
-  //                       key={i}
-  //                       initial={{ opacity: 0, x: -20 }}
-  //                       animate={{ opacity: 1, x: 0 }}
-  //                       transition={{ delay: i * 0.1 }}
-  //                       className="flex items-start gap-4"
-  //                     >
-  //                       <div className="w-8 h-8 bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] rounded-full flex items-center justify-center flex-shrink-0">
-  //                         <span className="text-black">{i + 1}</span>
-  //                       </div>
-  //                       <p className="text-white/70 pt-1">{step}</p>
-  //                     </motion.div>
-  //                   ))}
-  //                 </div>
-  //               </div>
-  //             </div>
-  //           )}
-
-  //           {selectedTab === 'messages' && (
-  //             <div className="space-y-4">
-  //               {recentMessages.map((msg, i) => (
-  //                 <motion.div
-  //                   key={i}
-  //                   initial={{ opacity: 0, x: -20 }}
-  //                   animate={{ opacity: 1, x: 0 }}
-  //                   transition={{ delay: i * 0.05 }}
-  //                   className="p-6 bg-[#1A1A1A] border border-[#D4AF37]/20 rounded-xl hover:border-[#D4AF37]/50 transition-all"
-  //                 >
-  //                   <div className="flex items-start gap-4">
-  //                     <motion.div
-  //                       animate={{
-  //                         scale: [1, 1.1, 1],
-  //                       }}
-  //                       transition={{
-  //                         duration: 2,
-  //                         repeat: Infinity,
-  //                         delay: i * 0.2,
-  //                       }}
-  //                       className="w-10 h-10 bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] rounded-full flex items-center justify-center flex-shrink-0"
-  //                     >
-  //                       <MessageSquare size={18} className="text-black" />
-  //                     </motion.div>
-  //                     <div className="flex-1">
-  //                       <p className="text-white/80 mb-2">{msg.message}</p>
-  //                       <span className="text-white/40 text-sm">{msg.time}</span>
-  //                     </div>
-  //                   </div>
-  //                 </motion.div>
-  //               ))}
-  //             </div>
-  //           )}
-
-  //           {selectedTab === 'interactions' && (
-  //             <div className="p-8 bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] border border-[#D4AF37]/20 rounded-2xl">
-  //               <h3 className="mb-6 text-[#D4AF37]">Interactive Features</h3>
-  //               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-  //                 {[
-  //                   {
-  //                     title: 'Request a Song',
-  //                     desc: 'Ask ARIA to play specific tracks or artists',
-  //                     action: 'Send Request',
-  //                   },
-  //                   {
-  //                     title: 'Change the Mood',
-  //                     desc: 'Tell ARIA how you\'re feeling for instant adaptation',
-  //                     action: 'Set Mood',
-  //                   },
-  //                   {
-  //                     title: 'Ask About Music',
-  //                     desc: 'Get instant info about the current track or artist',
-  //                     action: 'Ask Question',
-  //                   },
-  //                   {
-  //                     title: 'Voice Commands',
-  //                     desc: 'Control playback and preferences with your voice',
-  //                     action: 'Enable Voice',
-  //                   },
-  //                 ].map((feature, i) => (
-  //                   <motion.div
-  //                     key={i}
-  //                     initial={{ opacity: 0, y: 20 }}
-  //   animate = {{ opacity: 1, y: 0 }
-
-  // transition = {{ delay: i * 0.1 }}
-  // className = "p-6 bg-black/50 border border-[#D4AF37]/10 rounded-xl hover:border-[#D4AF37]/30 transition-all"
-  //   >
-  //                     <h4 className="mb-2">{feature.title}</h4>
-  //                     <p className="text-white/60 text-sm mb-4">{feature.desc}</p>
-  //                     <motion.button
-  //                       whileHover={{ scale: 1.02 }}
-  //                       whileTap={{ scale: 0.98 }}
-  //                       className="px-4 py-2 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black rounded-lg text-sm"
-  //                     >
-  //                       {feature.action}
-  //                     </motion.button>
-  //                   </motion.div >
-  //                 ))}
-  //               </div >
-  //             </div >
-  //           )}
-  //         </motion.div >
-  //       </div >
-  //     </div >
-  //   );
-  // }
+          <motion.div key={selectedTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            {renderTabContent()}
+          </motion.div>
+        </div>
+      </section>
+    </div>
+  );
 }
