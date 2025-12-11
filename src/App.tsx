@@ -5,6 +5,10 @@ import { DiscoverPage } from './components/DiscoverPage';
 import { AIHostPage } from './components/AIHostPage';
 import { SchedulePage } from './components/SchedulePage';
 import { AboutPage } from './components/AboutPage';
+import { MusicLibraryPage } from './components/MusicLibraryPage';
+import { MusicPlayer } from './components/MusicPlayer';
+import { MusicProvider } from './contexts/MusicContext';
+import { songs } from './data/songs';
 import './styles/globals.css';
 
 export default function App() {
@@ -22,15 +26,20 @@ export default function App() {
         return <SchedulePage />;
       case 'about':
         return <AboutPage />;
+      case 'music':
+        return <MusicLibraryPage />;
       default:
         return <HomePage />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
-      {renderPage()}
-    </div>
+    <MusicProvider songs={songs}>
+      <div className="min-h-screen bg-black text-white pb-24">
+        <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
+        {renderPage()}
+        <MusicPlayer />
+      </div>
+    </MusicProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { Radio, Compass, User, Calendar, Info } from 'lucide-react';
+import { Radio, Compass, User, Calendar, Info, Music } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface NavigationProps {
@@ -10,6 +10,7 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
   const links = [
     { id: 'home', label: 'Home', icon: Radio },
     { id: 'discover', label: 'Discover', icon: Compass },
+    { id: 'music', label: 'Music Library', icon: Music },
     { id: 'ai-host', label: 'AI Host', icon: User },
     { id: 'schedule', label: 'Schedule', icon: Calendar },
     { id: 'about', label: 'About', icon: Info },
@@ -39,11 +40,10 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
               onClick={() => onNavigate(id)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                currentPage === id
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${currentPage === id
                   ? 'text-[#D4AF37] bg-[#D4AF37]/10'
                   : 'text-white/70 hover:text-white'
-              }`}
+                }`}
             >
               <Icon size={18} />
               <span>{label}</span>
@@ -67,9 +67,8 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
             key={id}
             onClick={() => onNavigate(id)}
             whileTap={{ scale: 0.9 }}
-            className={`flex flex-col items-center gap-1 ${
-              currentPage === id ? 'text-[#D4AF37]' : 'text-white/50'
-            }`}
+            className={`flex flex-col items-center gap-1 ${currentPage === id ? 'text-[#D4AF37]' : 'text-white/50'
+              }`}
           >
             <Icon size={20} />
             <span className="text-xs">{label}</span>
